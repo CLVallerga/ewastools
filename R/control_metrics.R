@@ -68,18 +68,27 @@ control_metrics = function(raw){
 
 		# Bisulfite conversion I (no I-C6/I-U6 probes for EPIC but 450K)
 		ii  = controls[name%like%'I.C[12]',index] # 450K: "I C1"; EPIC "I-C1", otherwise always with dash "-"
+		at = controls[name%like%'Extension \\([AT]\\)',index] # added for the BCI Green channel background
 		bkg = controls[name%like%'I.U[12]',index] # 450K: "I U1"; EPIC "I-U1", otherwise always with dash "-"
 		metrics$`Bisulfite Conversion I Green` = apply(ctrlG[ii,,drop=FALSE],2,min) / apply(ctrlG[bkg,,drop=FALSE],2,max)
+		metrics$`Bisulfite Conversion I background Green` = (apply(ctrlG[at,,drop=FALSE],2,min)+3000) / apply(ctrlG[bkg,,drop=FALSE],2,max)
 		ii  = controls[name%like%'I-C[45]',index]
+		cg = controls[name%like%'Extension \\([CG]\\)',index] # added for the BCI Red channel background
 		bkg = controls[name%like%'I-U[45]',index] 
-		metrics$`Bisulfite Conversion I Red` = apply(ctrlR[ii,,drop=FALSE],2,min) / apply(ctrlR[bkg,,drop=FALSE],2,max) 
+		metrics$`Bisulfite Conversion I Red` = apply(ctrlR[ii,,drop=FALSE],2,min) / apply(ctrlR[bkg,,drop=FALSE],2,max)
+		metrics$`Bisulfite Conversion I background Red` = (apply(ctrlR[cg,,drop=FALSE],2,min)+3000) / apply(ctrlR[bkg,,drop=FALSE],2,max)
 		attr(metrics$`Bisulfite Conversion I Green`,'threshold') <- 1
+		attr(metrics$`Bisulfite Conversion I background Green`,'threshold') <- 1
 		attr(metrics$`Bisulfite Conversion I Red`,'threshold') <- 1
+		attr(metrics$`Bisulfite Conversion I background Red`,'threshold') <- 1
 
 		# Bisulfite conversion II
 		ii  = controls[group=='BISULFITE CONVERSION II',index]
+		at = controls[name%like%'Extension \\([AT]\\)',index] # added for the BCII background
 		metrics$`Bisulfite Conversion II` = apply(ctrlR[ii,,drop=FALSE],2,min) / apply(ctrlG[ii,,drop=FALSE],2,max)
+		metrics$`Bisulfite Conversion II background` = (apply(ctrlG[at,,drop=FALSE],2,min)+3000) / apply(ctrlG[ii,,drop=FALSE],2,max)
 		attr(metrics$`Bisulfite Conversion II`,'threshold') <- 1
+		attr(metrics$`Bisulfite Conversion II background`,'threshold') <- 1
 
 		# Specificity I
 		pm  = controls[name%like%'Mismatch [123] \\(PM\\)',index]
@@ -93,8 +102,11 @@ control_metrics = function(raw){
 
 		# Specificity II
 		ii  = controls[group=='SPECIFICITY II',index]
+		at = controls[name%like%'Extension \\([AT]\\)',index] # added for the Spec II background
 		metrics$`Specificity II` = apply(ctrlR[ii,,drop=FALSE],2,min) / apply(ctrlG[ii,,drop=FALSE],2,max)
+		metrics$`Specificity II background` = (apply(ctrlG[at,,drop=FALSE],2,min)+3000) / apply(ctrlG[ii,,drop=FALSE],2,max)
 		attr(metrics$`Specificity II`,'threshold') <- 1
+		attr(metrics$`Specificity II background`,'threshold') <- 1
 
 		# Non-polymorphic
 		cg  = controls[name%like%'NP \\([CG]\\)$',index]
